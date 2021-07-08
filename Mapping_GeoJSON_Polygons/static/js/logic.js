@@ -1,51 +1,46 @@
-// Add console.log to check to see if our code is working.
-// console.log("working");
-// Create the map object with a center and zoom level.
-// Create the map object with center at the San Francisco airport.
-
-//let map = L.map('mapid').setView([37.6213, -122.3790], 5);
-// Create the map object with a center and zoom level.
-let map = L.map("mapid", {
-  center: [44.0, -80.0],
-zoom: 2
-});
-
-// Create the map object with a center and zoom level.
-// anothe way to create map object 
-// let map = L.map("mapid", {
-//     center: [
-//       40.7, -94.5
-//     ],
-//     zoom: 4
-//   });
-//add map tile layers that will be the background of our map
-// We create the tile layer that will be the background of our map.
-
-let streets = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+let streets = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
         maxZoom: 18,
         accessToken: API_KEY
     });
 
     // Then we add our 'graymap' tile layer to the map.
-streets.addTo(map);
+
     // adding url for external geojson file 
 let airportData = "https://raw.githubusercontent.com/jtang3yo/Mapping_Earthquakes/main/majorAirports.json";
 // Accessing the Toronto airline routes GeoJSON URL.
 let torontoData = "https://raw.githubusercontent.com/jtang3yo/Mapping_Earthquakes/main/torontoRoutes.json";
+// Accessing the Toronto neighborhoods GeoJSON URL.
+let torontoHoods = "https://raw.githubusercontent.com/jtang3yo/Mapping_Earthquakes/main/torontoNeighborhoods.json";
         
 // We create the dark view tile layer that will be an option for our map.
-let dark = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+let satelliteStreets = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v11/tiles/{z}/{x}/{y}?access_token={accessToken}', {
 attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 18,
     accessToken: API_KEY
 });
 // Create a base layer that holds both maps.
 let baseMaps = {
-  Street: streets,
-  Dark: dark
-};
+  "Streets": streets,
+  "Satellite Streets": satelliteStreets
+}; 
+let map = L.map("mapid", {
+  center: [43.7, -79.3],
+  zoom: 11,
+  layers: [satelliteStreets]
+});
 
+//Grabbing GeoJSON use d3.json()
+d3.json(torontoHoods).then(function(data){
+  console.log(data);
+  //create GeoJSON layer with retrieved data 
+  L.geoJson(data,{
+    color: "blue",
+    weight: 2,
+    fillColor: "yellow", 
+    fillOpacity: 0.5
+  }).addTo(map);
+})
 
 // Pass our map layers into our layers control and add the layers control to the map.
 L.control.layers(baseMaps).addTo(map);
